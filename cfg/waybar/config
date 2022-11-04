@@ -1,0 +1,30 @@
+// vim: ft=jsonc
+{
+  "layer": "top",
+  "position": "top",
+  "height": 27,
+  "modules-left": ["custom/launcher", "sway/workspaces"],
+  "custom/launcher": {
+    "format": "",
+    "on-click": "rofi -show drun"
+  },
+  "sway/workspaces": {
+    "format": "{icon}",
+    "format-icons": {
+      "1": "",
+      "2": "",
+      "3": "",
+      "4": "",
+      "5": "",
+      "6": "ﭮ"
+    },
+    "persistent_workspaces": {
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": []
+    }
+  }
+}

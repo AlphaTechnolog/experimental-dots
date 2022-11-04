@@ -1,0 +1,11 @@
+font=Product Sans 10
+background-color=#0d0f18
+text-color=#a5b6cf
+width=230
+height=400
+margin=30
+padding=20
+border-size=1
+border-color=#0d0f18
+text-alignment=center
+default-timeout=4000

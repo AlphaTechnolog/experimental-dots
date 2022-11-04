@@ -1,0 +1,96 @@
+#!/bin/bash
+
+# Aur helper 
+# By Bleyom 2022 
+
+BOLD='\033[1m'
+RED='\033[0;31m'
+NC='\033[0m'
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+MAGENTA='\033[1;35m'
+
+
+GIT_URL="https://aur.archlinux.org/"
+AUR_URL="https://aur.archlinux.org/packages/"
+PACKAGE="$1"
+PKGBUILD_URL="https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=${PACKAGE}"
+PKG_VERSION=$(curl -s "${PKGBUILD_URL}" | grep "pkgver" | sed -n '1p' | sed 's/pkgver=|${pkgver}//g')
+
+mkdir -p "$HOME"/.cache/byre/
+
+trap ctrl_c INT
+
+ctrl_c(){
+  echo -ne "${RED}[*]${NC} ${GREEN}Exiting ...${NC}"
+}
+
+DownloadPackage(){
+    echo -ne "Do you want to automatically ${BLUE}download${NC} the ${MAGENTA}package${NC}? ${GREEN}(y/n)${NC}\n"
+    read -r ANSWER
+    case $ANSWER in
+       [yY])
+       git clone "${GIT_URL}${PACKAGE}.git" "$HOME"/.cache/byre/"${PACKAGE}"
+       cd "$HOME/.cache/byre/${PACKAGE}"
+       echo "Do yo want to edit PKGBUILD (y/n)"
+       read -r ANSWER
+        case $ANSWER in
+            [yY])
+            nano "$HOME"/.cache/byre/"$PACKAGE"/PKGBUILD
+            ;;
+            [nN])
+            ;;
+            *)
+            echo -ne "${RED}Invalid answer${NC}"
+            ;;
+        esac
+       makepkg -si --noconfirm
+       ;;
+       [nN])
+         echo "Downloading package source code ..."
+         wget -q "${PACKAGE_SOURCE}" -O "$HOME"/.cache/byre/"${PACKAGE}".tar.gz
+         tar -xvf "$HOME"/.cache/byre/"${PACKAGE}".tar.gz
+         echo -ne "Here u go, yor source code, now compile it ${GREEN}:D${NC}"
+         echo -ne "The source code is located in ${GREEN}~/.cache/byre/${PACKAGE}.tar.gz${NC}"
+         ;;
+       *)
+        echo "Invalid answer"
+        exit 1
+         ;;
+         esac
+}
+
+main(){
+  echo "[!] Searching package ""${PACKAGE}"""
+  curl -s "${AUR_URL}${PACKAGE}" > /dev/null
+  EXIST=$?
+
+  if [[ $EXIST -eq "0" ]]; then
+    echo "Package exist, downloading ..."
+    # Get PKGBUILD and extract source url
+    TO_PROCCES_PACKAGE_SOURCE=$(curl -s "${PKGBUILD_URL}" | grep "source" | sed 's/.*:://' | tr -d '"()' | sed 's/$pkgver/match_pkg/g' | sed 's/${pkgver}/match_pkg/g')
+    PROCESSED_PACKAGE_SOURCE=$(echo "${TO_PROCCES_PACKAGE_SOURCE}" | sed "s/match_pkg/$PKG_VERSION/g" )
+    PACKAGE_SOURCE=$(echo "$PROCESSED_PACKAGE_SOURCE" | sed 's/pkgver=//g')
+    echo "Package source: ""${PACKAGE_SOURCE}""" 
+    DownloadPackage
+  else
+    echo "No"
+    exit 1
+  fi
+}
+
+if [[ -z $1 ]]; then
+  echo -ne "Welcome to ${BOLD}B${NC}le${BOLD}Y${NC}om Au${BOLD}R${NC} H${BOLD}E${NC}lper, ${BOLD}BYRE${NC} \n"
+cat << EOF
+
+ _|_|_|     _|      _|   _|_|_|     _|_|_|_|  
+ _|    _|     _|  _|     _|    _|   _|        
+ _|_|_|         _|       _|_|_|     _|_|_|    
+ _|    _|       _|       _|    _|   _|        
+ _|_|_|         _|       _|    _|   _|_|_|_|  
+
+ Usage: $(basename $0) <package>
+EOF
+    else
+  main
+fi
