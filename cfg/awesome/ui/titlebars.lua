@@ -2,31 +2,52 @@
 
 local awful = require 'awful'
 local wibox = require 'wibox'
-local gears = require 'gears'
 local beautiful = require 'beautiful'
+local gears = require 'gears'
+local helpers = require 'helpers'
 
-local function make_button(color, onclick)
+local function make_button(txt, fg, bg, hfg, hbg, onclick)
 	return function (c)
 		local btn = wibox.widget {
 			{
 				{
-					id = 'background_role',
-					forced_height = 15,
-					forced_width = 15,
-					bg = beautiful[color],
-					shape = gears.shape.circle,
-					widget = wibox.container.background,
+					markup = txt,
+					font = beautiful.nerd_font .. ' 7',
+					widget = wibox.widget.textbox,
 				},
-				top = 3,
-				bottom = 4,
+				left = 8,
+				right = 8,
 				widget = wibox.container.margin,
 			},
-			valign = 'center',
-			layout = wibox.container.place,
-			set_background = function (self, new_bg)
-				self:get_children_by_id('background_role')[1].bg = new_bg
-			end
+			shape = gears.shape.circle,
+			fg = beautiful[fg],
+			bg = beautiful[bg],
+			widget = wibox.container.background,
 		}
+
+		local fg_transition = helpers.apply_transition {
+			element = btn,
+			prop = 'fg',
+			bg = beautiful[fg],
+			hbg = beautiful[hfg],
+		}
+
+		local bg_transition = helpers.apply_transition {
+			element = btn,
+			prop = 'bg',
+			bg = beautiful[bg],
+			hbg = beautiful[hbg],
+		}
+
+		btn:connect_signal('mouse::enter', function ()
+			fg_transition.on()
+			bg_transition.on()
+		end)
+
+		btn:connect_signal('mouse::leave', function ()
+			fg_transition.off()
+			bg_transition.off()
+		end)
 
 		btn:add_button(awful.button({}, 1, function ()
 			if onclick then
@@ -34,43 +55,33 @@ local function make_button(color, onclick)
 			end
 		end))
 
-		btn.background = c.active and beautiful[color] or beautiful.light_black
-
-		client.connect_signal('property::active', function (updated_client)
-			if updated_client == c then
-				btn.background = updated_client.active and beautiful[color] or beautiful.light_black
-			end
-		end)
-
 		return btn
 	end
 end
 
-local close_button = make_button('red', function (c)
-	c:kill()
-end)
-
-local maximize_button = make_button('green', function (c)
-	c.maximized = not c.maximized
-end)
-
-local minimize_button = make_button('yellow', function (c)
-	-- bypass AwesomeWM issues with `client.minimized`
+-- avoid issues with AwesomeWM's `c.minimized`
+local function minimize(c)
 	gears.timer {
 		timeout = 0.05,
 		call_now = false,
 		autostart = true,
 		single_shot = true,
 		callback = function ()
-			if not c.minimized then
-				c.minimized = true
-			end
+			c.minimized = true
 		end
 	}
+end
+
+local close_button = make_button('', 'red', 'red', 'bg_normal', 'red', function (c)
+	c:kill()
 end)
 
-local floating_button = make_button('cyan', function (c)
-	c.floating = not c.floating
+local maximize_button = make_button('', 'yellow', 'yellow', 'bg_normal', 'yellow', function (c)
+	c.maximized = not c.maximized
+end)
+
+local minimize_button = make_button('', 'green', 'green', 'bg_normal', 'green', function (c)
+	minimize(c)
 end)
 
 client.connect_signal('request::titlebars', function (c)
@@ -79,8 +90,8 @@ client.connect_signal('request::titlebars', function (c)
 	end
 
   local titlebar = awful.titlebar(c, {
-    position = 'left',
-    size = 39
+    position = 'top',
+    size = 42
   })
 
   local titlebars_buttons = {
@@ -99,27 +110,25 @@ client.connect_signal('request::titlebars', function (c)
   }
 
   local buttons_loader = {
-    layout = wibox.layout.fixed.vertical,
+    layout = wibox.layout.fixed.horizontal,
     buttons = titlebars_buttons,
   }
 
   titlebar:setup {
-    {
+		{
 			{
 				close_button(c),
 				maximize_button(c),
 				minimize_button(c),
-				layout = wibox.layout.fixed.vertical,
+				layout = wibox.layout.fixed.horizontal,
 			},
-			top = 8,
-			widget = wibox.container.margin,
-    },
-    buttons_loader,
-		{
-			floating_button(c),
-			bottom = 8,
+			left = 11,
+			top = 14,
+			bottom = 14,
 			widget = wibox.container.margin,
 		},
-    layout = wibox.layout.align.vertical
+		buttons_loader,
+    buttons_loader,
+    layout = wibox.layout.align.horizontal
   }
 end)

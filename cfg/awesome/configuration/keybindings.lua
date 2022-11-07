@@ -11,10 +11,14 @@ local function set_keybindings ()
                   {description = "quit awesome", group = "awesome"}),
         awful.key({ modkey,           }, "Return", function () awful.spawn(terminal) end,
                   {description = "open a terminal", group = "launcher"}),
-        awful.key({ modkey }, "p", function() menubar.show() end,
-                  {description = "show the menubar", group = "launcher"}),
         awful.key({ modkey, "Shift" }, "Return", function () awful.spawn("rofi -show drun") end,
                   {description = "Open rofi", group = "launcher"}),
+        awful.key({ modkey }, "b", function ()
+          awesome.emit_signal('bar::toggle')
+        end, { description = 'Toggle no distractions mode', group = 'launcher' }),
+        awful.key({ modkey }, "d", function ()
+          awesome.emit_signal('dashboard::toggle')
+        end, { description = 'Toggle dashboard', group = 'launcher' })
     })
 
     -- Tags related keybindings

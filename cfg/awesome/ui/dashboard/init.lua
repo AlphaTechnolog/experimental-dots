@@ -10,11 +10,18 @@ require 'ui.dashboard.listener'
 awful.screen.connect_for_each_screen(function (s)
   s.dashboard = {}
 
+  local offset = beautiful.useless_gap * 2
+  local bar_height = beautiful.bar_height
+
+  awesome.connect_signal('dashboard::update_dimensions', function (v)
+    bar_height = v and beautiful.bar_height or 0
+  end)
+
   s.dashboard.popup = wibox {
     visible = false,
     ontop = true,
     x = (s.geometry.width / 2) - (dimensions.width / 2),
-    y = s.geometry.y - dimensions.height - beautiful.useless_gap * 2 - beautiful.bar_height,
+    y = s.geometry.y - dimensions.height - offset - bar_height,
     width = dimensions.width,
     height = dimensions.height,
     bg = beautiful.bg_normal,
@@ -52,18 +59,18 @@ awful.screen.connect_for_each_screen(function (s)
   self.animate:subscribe(function (pos)
     self.y = pos
 
-    if pos == beautiful.bar_height + beautiful.useless_gap * 2 and self.status == 'opening' then
+    if pos == bar_height + offset and self.status == 'opening' then
       self:setup(content)
     elseif self.status == 'closing' then
       self:setup({ widget = wibox.widget.textbox })
     end
 
-    if pos == s.geometry.y - beautiful.useless_gap * 2 - dimensions.height - beautiful.bar_height and self.status == 'closing' then
+    if pos == s.geometry.y - offset - dimensions.height - bar_height and self.status == 'closing' then
       self.visible = false
     end
   end)
 
-  self.animate.target = s.geometry.y - beautiful.useless_gap * 2 - dimensions.height - beautiful.bar_height
+  self.animate.target = s.geometry.y - offset - dimensions.height - bar_height
 
   function s.dashboard.toggle()
     if self.visible then
@@ -76,13 +83,13 @@ awful.screen.connect_for_each_screen(function (s)
   function s.dashboard.open()
     self.status = 'opening'
     self.visible = true
-    self.animate.target = beautiful.bar_height + beautiful.useless_gap * 2
+    self.animate.target = bar_height + offset
     self.transition_animation.target = 1
   end
 
   function s.dashboard.close()
     self.status = 'closing'
     self.transition_animation.target = 0
-    self.animate.target = s.geometry.y - beautiful.bar_height - beautiful.useless_gap * 2 - dimensions.height
+    self.animate.target = s.geometry.y - bar_height - offset - dimensions.height
   end
 end)

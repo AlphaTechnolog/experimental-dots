@@ -9,6 +9,8 @@ local actions = require 'ui.bar.modules.actions'
 local dashboard = require 'ui.bar.modules.dashboard'
 local layoutbox = require 'ui.bar.modules.layoutbox'
 
+require 'ui.bar.hidder'
+
 ---@diagnostic disable-next-line: undefined-global
 screen.connect_signal('request::desktop_decoration', function (s)
   awful.tag(
@@ -59,4 +61,6 @@ screen.connect_signal('request::desktop_decoration', function (s)
     left = 10,
     widget = wibox.container.margin,
   }
+
+  s.bar = bar
 end)

@@ -1,6 +1,6 @@
 local menubar = require "menubar"
 
-terminal = "kitty --single-instance"
+terminal = "st"
 explorer = "thunar"
 browser = "firefox"
 launcher = "rofi -show drun"
