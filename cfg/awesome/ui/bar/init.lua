@@ -58,7 +58,7 @@ screen.connect_signal('request::desktop_decoration', function (s)
       },
       layout = wibox.layout.stack,
     },
-    left = 10,
+    left = 7,
     widget = wibox.container.margin,
   }
 

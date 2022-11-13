@@ -33,7 +33,7 @@ disable_redshift () {
 
 enable_redshift () {
   redshift -x 2>&1 > /dev/null
-  redshift -O 5000 2>&1 > /dev/null
+  redshift -O 5500 2>&1 > /dev/null
   # saving new state
   echo on > $cache_file
 }

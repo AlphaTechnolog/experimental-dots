@@ -19,7 +19,11 @@ end
 
 function network.re_emit_ssid_signal()
   awful.spawn.easy_async_with_shell(get_ssid, function (out)
-    awesome.emit_signal('network::ssid', out:gsub('\n', ''))
+		local ssid = out:gsub('\n', '')
+		if ssid == '' then
+			ssid = 'Disconnected'
+		end
+    awesome.emit_signal('network::ssid', ssid)
   end)
 end
 

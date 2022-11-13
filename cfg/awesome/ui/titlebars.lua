@@ -16,7 +16,7 @@ local function make_button(txt, fg, bg, hfg, hbg, onclick)
 					widget = wibox.widget.textbox,
 				},
 				left = 8,
-				right = 8,
+				right = 7,
 				widget = wibox.container.margin,
 			},
 			shape = gears.shape.circle,
@@ -59,19 +59,6 @@ local function make_button(txt, fg, bg, hfg, hbg, onclick)
 	end
 end
 
--- avoid issues with AwesomeWM's `c.minimized`
-local function minimize(c)
-	gears.timer {
-		timeout = 0.05,
-		call_now = false,
-		autostart = true,
-		single_shot = true,
-		callback = function ()
-			c.minimized = true
-		end
-	}
-end
-
 local close_button = make_button('', 'red', 'red', 'bg_normal', 'red', function (c)
 	c:kill()
 end)
@@ -81,7 +68,9 @@ local maximize_button = make_button('', 'yellow', 'yellow', 'bg_normal', 'yel
 end)
 
 local minimize_button = make_button('', 'green', 'green', 'bg_normal', 'green', function (c)
-	minimize(c)
+	gears.timer.delayed_call(function ()
+		c.minimized = true
+	end)
 end)
 
 client.connect_signal('request::titlebars', function (c)
@@ -91,7 +80,7 @@ client.connect_signal('request::titlebars', function (c)
 
   local titlebar = awful.titlebar(c, {
     position = 'top',
-    size = 42
+    size = 35
   })
 
   local titlebars_buttons = {
@@ -122,9 +111,9 @@ client.connect_signal('request::titlebars', function (c)
 				minimize_button(c),
 				layout = wibox.layout.fixed.horizontal,
 			},
-			left = 11,
-			top = 14,
-			bottom = 14,
+			left = 10,
+			top = 11,
+			bottom = 10,
 			widget = wibox.container.margin,
 		},
 		buttons_loader,

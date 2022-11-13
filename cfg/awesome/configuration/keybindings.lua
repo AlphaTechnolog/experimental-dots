@@ -1,10 +1,7 @@
 local awful = require "awful"
-local hotkeys_popup = require "awful.hotkeys_popup"
 
 local function set_keybindings ()
     awful.keyboard.append_global_keybindings({
-        awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
-                  {description="show help", group="awesome"}),
         awful.key({ modkey, "Control" }, "r", awesome.restart,
                   {description = "reload awesome", group = "awesome"}),
         awful.key({ modkey, "Shift"   }, "q", awesome.quit,
@@ -18,7 +15,14 @@ local function set_keybindings ()
         end, { description = 'Toggle no distractions mode', group = 'launcher' }),
         awful.key({ modkey }, "d", function ()
           awesome.emit_signal('dashboard::toggle')
-        end, { description = 'Toggle dashboard', group = 'launcher' })
+        end, { description = 'Toggle dashboard', group = 'launcher' }),
+        awful.key(
+            { modkey }, 's',
+            function ()
+                awesome.emit_signal('screenshot-center::toggle')
+            end,
+            { description = 'toggle the screenshots center', group = 'launcher' }
+        ),
     })
 
     -- Tags related keybindings
